@@ -10,6 +10,13 @@ CREATE OR REPLACE PACKAGE customer_api IS
     FUNCTION get_customer_balance(
         svz IN VARCHAR2
     ) RETURN NUMBER;
+
+    PROCEDURE update_customer_info(
+        svz IN VARCHAR2,
+        f_firstname IN VARCHAR2 DEFAULT NULL,
+        l_lastname IN VARCHAR2 DEFAULT NULL,
+        b_birthdate IN DATE DEFAULT NULL
+    );
 END customer_api;
 
 -- customer package body
@@ -21,7 +28,7 @@ CREATE OR REPLACE PACKAGE BODY customer_api IS
         RETURN 100.00;
     END;
 
-    -- private helper function for register_customer
+    -- private helper function for register_customer, update_customer_info
     FUNCTION validate_age(p_birthdate DATE) RETURN BOOLEAN IS
     BEGIN
         RETURN (MONTHS_BETWEEN(SYSDATE, p_birthdate) / 12) >= 18;
@@ -50,7 +57,7 @@ CREATE OR REPLACE PACKAGE BODY customer_api IS
         VALUES (v_new_id, svz, firstname, lastname, birthdate, v_money);
     END;
 
-    -- private helper function for get_customer_balance
+    -- private helper function for get_customer_balance, update_customer_info
     FUNCTION get_customer_id_by_svz(s_svz VARCHAR2) RETURN customer.id%TYPE IS
         id customer.id%TYPE;
     BEGIN
@@ -70,7 +77,7 @@ CREATE OR REPLACE PACKAGE BODY customer_api IS
         svz IN VARCHAR2
     ) RETURN NUMBER IS
         balance customer.money%TYPE;
-        i_id      customer.id%TYPE;
+        i_id    customer.id%TYPE;
     BEGIN
         i_id := get_customer_id_by_svz(svz);
         SELECT money
@@ -80,6 +87,34 @@ CREATE OR REPLACE PACKAGE BODY customer_api IS
 
         RETURN balance;
     END;
+
+    -- public procedure
+    PROCEDURE update_customer_info(
+        svz IN VARCHAR2,
+        f_firstname IN VARCHAR2 DEFAULT NULL,
+        l_lastname IN VARCHAR2 DEFAULT NULL,
+        b_birthdate IN DATE DEFAULT NULL
+    ) IS
+        v_id customer.id%TYPE;
+    BEGIN
+        -- Get customer ID or raise error if not found
+        v_id := get_customer_id_by_svz(svz);
+
+        -- If birthdate is provided, check age
+        IF b_birthdate IS NOT NULL THEN
+            IF NOT validate_age(b_birthdate) THEN
+                RAISE_APPLICATION_ERROR(-20004, 'Birthdate update rejected: customer must be at least 18.');
+            END IF;
+        END IF;
+
+        -- Update only provided fields
+        UPDATE customer
+        SET firstname = COALESCE(f_firstname, firstname),
+            lastname  = COALESCE(l_lastname, lastname),
+            birthdate = COALESCE(b_birthdate, birthdate)
+        WHERE id = v_id;
+
+    END update_customer_info;
 
 END customer_api;
 
@@ -97,8 +132,18 @@ END;
 
 -- test for get customer balance
 DECLARE
-  v_balance NUMBER;
+    v_balance NUMBER;
 BEGIN
-  v_balance := customer_api.get_customer_balance('9876543210');
-  DBMS_OUTPUT.PUT_LINE('Customer Balance: ' || v_balance);
+    v_balance := customer_api.get_customer_balance('9876543210');
+    DBMS_OUTPUT.PUT_LINE('Customer Balance: ' || v_balance);
+END;
+
+-- test for update customer info
+BEGIN
+    customer_api.update_customer_info(
+            svz => '9876543210',
+            f_firstname => 'Alice',
+            l_lastname => 'Brown',
+            b_birthdate => TO_DATE('1992-06-01', 'YYYY-MM-DD')
+    );
 END;
