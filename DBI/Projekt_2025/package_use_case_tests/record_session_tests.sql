@@ -11,3 +11,4 @@ BEGIN
 END;
 
 select * from GAME_HISTORY where "table" = 1;
+select * from CUSTOMER where SVZ = '9876543210';
