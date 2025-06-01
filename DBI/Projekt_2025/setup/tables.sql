@@ -72,6 +72,16 @@ create table personal_contract_history
     primary key (id)
 );
 
+CREATE TABLE log_table (
+  log_id        NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  table_name    VARCHAR2(50),
+  table_operation     VARCHAR2(10),
+  description   VARCHAR2(4000),
+  executed_by   VARCHAR2(100),
+  executed_at   DATE DEFAULT SYSDATE
+);
+
+
 -- foreign keys
 alter table game_history
     add foreign key (customer) references customer (id) on delete cascade
