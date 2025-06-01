@@ -3,10 +3,10 @@
 -- test for register customer
 BEGIN
     customer_api.register_customer(
-            svz => '987643210',
-            firstname => 'Alice',
-            lastname => 'Smith',
-            birthdate => TO_DATE('2290-07-01', 'YYYY-MM-DD')
+            s_svz => '987643210',
+            f_firstname => 'Alice',
+            l_lastname => 'Smith',
+            b_birthdate => TO_DATE('2290-07-01', 'YYYY-MM-DD')
     );
 END;
 

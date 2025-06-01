@@ -1,10 +1,10 @@
 -- customer package
 CREATE OR REPLACE PACKAGE customer_api IS
     PROCEDURE register_customer(
-        svz IN VARCHAR2,
-        firstname IN VARCHAR2,
-        lastname IN VARCHAR2,
-        birthdate IN DATE
+        s_svz IN VARCHAR2,
+        f_firstname IN VARCHAR2,
+        l_lastname IN VARCHAR2,
+        b_birthdate IN DATE
     );
 
     FUNCTION get_customer_balance(
@@ -40,25 +40,25 @@ CREATE OR REPLACE PACKAGE BODY customer_api IS
 
     -- public procedure
     PROCEDURE register_customer(
-        svz IN VARCHAR2,
-        firstname IN VARCHAR2,
-        lastname IN VARCHAR2,
-        birthdate IN DATE
+        s_svz IN VARCHAR2,
+        f_firstname IN VARCHAR2,
+        l_lastname IN VARCHAR2,
+        b_birthdate IN DATE
     ) IS
         v_new_id customer.id%TYPE;
         v_money  customer.money%TYPE := get_default_money;
     BEGIN
-        -- Age check
-        IF NOT validate_age(birthdate) THEN
+        -- validate alter
+        IF NOT validate_age(b_birthdate) THEN
             RAISE_APPLICATION_ERROR(-20002, 'Customer must be at least 18 years old.');
         END IF;
 
         -- Generate new ID
         SELECT NVL(MAX(id), 0) + 1 INTO v_new_id FROM customer;
 
-        -- Insert new customer with default money
+        -- Insert
         INSERT INTO customer(id, svz, firstname, lastname, birthdate, money)
-        VALUES (v_new_id, svz, firstname, lastname, birthdate, v_money);
+        VALUES (v_new_id, s_svz, f_firstname, l_lastname, b_birthdate, v_money);
     END;
 
     -- private helper function for get_customer_balance, update_customer_info
@@ -101,17 +101,17 @@ CREATE OR REPLACE PACKAGE BODY customer_api IS
     ) IS
         v_id customer.id%TYPE;
     BEGIN
-        -- Get customer ID or raise error if not found
+        -- get id
         v_id := get_customer_id_by_svz(svz);
 
-        -- If birthdate is provided, check age
+        -- validate age
         IF b_birthdate IS NOT NULL THEN
             IF NOT validate_age(b_birthdate) THEN
                 RAISE_APPLICATION_ERROR(-20004, 'Birthdate update rejected: customer must be at least 18.');
             END IF;
         END IF;
 
-        -- Update only provided fields
+        -- Update
         UPDATE customer
         SET firstname = COALESCE(f_firstname, firstname),
             lastname  = COALESCE(l_lastname, lastname),
