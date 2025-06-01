@@ -6,7 +6,7 @@ CREATE OR REPLACE PACKAGE personal_api IS
         s_salary IN NUMBER
     );
 
-    TYPE staff_rec IS RECORD
+    TYPE personal_rec IS RECORD
                       (
                           personal_id personal.id%TYPE,
                           firstname   personal.firstname%TYPE,
@@ -15,11 +15,11 @@ CREATE OR REPLACE PACKAGE personal_api IS
                           end_time    TIMESTAMP
                       );
 
-    TYPE staff_cursor IS REF CURSOR RETURN staff_rec;
+    TYPE personal_cursor IS REF CURSOR RETURN personal_rec;
 
     FUNCTION get_current_table_personal(
         t_table_id IN NUMBER
-    ) RETURN staff_cursor;
+    ) RETURN personal_cursor;
 END personal_api;
 
 CREATE OR REPLACE PACKAGE BODY personal_api IS
@@ -43,7 +43,7 @@ CREATE OR REPLACE PACKAGE BODY personal_api IS
     BEGIN
         -- Validations
         IF NOT personal_exists(p_personal_id) THEN
-            RAISE_APPLICATION_ERROR(-20050, 'Staff member does not exist.');
+            RAISE_APPLICATION_ERROR(-20050, 'personal member does not exist.');
         END IF;
 
         IF t_till <= s_since THEN
@@ -80,8 +80,8 @@ CREATE OR REPLACE PACKAGE BODY personal_api IS
     -- public function
     FUNCTION get_current_table_personal(
         t_table_id IN NUMBER
-    ) RETURN staff_cursor IS
-        v_cursor staff_cursor;
+    ) RETURN personal_cursor IS
+        v_cursor personal_cursor;
     BEGIN
         -- check if table there
         IF NOT table_exists(t_table_id) THEN
