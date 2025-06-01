@@ -30,25 +30,25 @@ END;
 
 -- test for get customer history
 DECLARE
-  v_cursor customer_api.game_history_rec;
-  v_time   TIMESTAMP;
-  v_payout NUMBER;
-  v_place  VARCHAR2(40);
-  v_game   VARCHAR2(40);
+    v_cursor customer_api.game_history_rec;
+    v_time   TIMESTAMP;
+    v_payout NUMBER;
+    v_place  VARCHAR2(40);
+    v_game   VARCHAR2(40);
 BEGIN
-  -- Get game history for customer by SVZ
-  v_cursor := customer_api.get_game_history('C015'); -- change SVZ to existing one
+    -- Get game history for customer by SVZ
+    v_cursor := customer_api.get_game_history('C015'); -- change SVZ to existing one
 
-  LOOP
-    FETCH v_cursor INTO v_time, v_payout, v_place, v_game;
-    EXIT WHEN v_cursor%NOTFOUND;
+    LOOP
+        FETCH v_cursor INTO v_time, v_payout, v_place, v_game;
+        EXIT WHEN v_cursor%NOTFOUND;
 
-    DBMS_OUTPUT.PUT_LINE(
-      'Game: ' || v_game || ', Table: ' || v_place ||
-      ', Time: ' || TO_CHAR(v_time, 'YYYY-MM-DD HH24:MI') ||
-      ', Payout: ' || TO_CHAR(v_payout)
-    );
-  END LOOP;
+        DBMS_OUTPUT.PUT_LINE(
+                'Game: ' || v_game || ', Table: ' || v_place ||
+                ', Time: ' || TO_CHAR(v_time, 'YYYY-MM-DD HH24:MI') ||
+                ', Payout: ' || TO_CHAR(v_payout)
+        );
+    END LOOP;
 
-  CLOSE v_cursor;
+    CLOSE v_cursor;
 END;
