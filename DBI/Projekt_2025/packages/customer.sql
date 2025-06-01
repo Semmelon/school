@@ -17,6 +17,10 @@ CREATE OR REPLACE PACKAGE customer_api IS
         l_lastname IN VARCHAR2 DEFAULT NULL,
         b_birthdate IN DATE DEFAULT NULL
     );
+
+    TYPE game_history_rec IS REF CURSOR;
+
+    FUNCTION get_game_history(p_svz IN VARCHAR2) RETURN game_history_rec;
 END customer_api;
 
 -- customer package body
@@ -116,34 +120,27 @@ CREATE OR REPLACE PACKAGE BODY customer_api IS
 
     END update_customer_info;
 
+    -- public function
+    FUNCTION get_game_history(p_svz IN VARCHAR2) RETURN game_history_rec IS
+        i_id     customer.id%TYPE;
+        c_cursor game_history_rec;
+    BEGIN
+        -- Get customer ID
+        i_id := get_customer_id_by_svz(p_svz);
+
+        -- Open cursor
+        OPEN c_cursor FOR
+            SELECT gh.time,
+                   gh.payout,
+                   t.place       AS table_place,
+                   g.bezeichnung AS game_name
+            FROM game_history gh
+                     JOIN "table" t ON gh."table" = t.id
+                     JOIN game g ON t.game = g.id
+            WHERE gh.customer = i_id
+            ORDER BY gh.time DESC;
+
+        RETURN c_cursor;
+    END get_game_history;
+
 END customer_api;
-
--- test for customer package
-
--- test for register customer
-BEGIN
-    customer_api.register_customer(
-            svz => '987643210',
-            firstname => 'Alice',
-            lastname => 'Smith',
-            birthdate => TO_DATE('2290-07-01', 'YYYY-MM-DD')
-    );
-END;
-
--- test for get customer balance
-DECLARE
-    v_balance NUMBER;
-BEGIN
-    v_balance := customer_api.get_customer_balance('9876543210');
-    DBMS_OUTPUT.PUT_LINE('Customer Balance: ' || v_balance);
-END;
-
--- test for update customer info
-BEGIN
-    customer_api.update_customer_info(
-            svz => '9876543210',
-            f_firstname => 'Alice',
-            l_lastname => 'Brown',
-            b_birthdate => TO_DATE('1992-06-01', 'YYYY-MM-DD')
-    );
-END;
