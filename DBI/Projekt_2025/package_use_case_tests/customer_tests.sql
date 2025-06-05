@@ -6,22 +6,24 @@ BEGIN
             s_svz => '987643210',
             f_firstname => 'Alice',
             l_lastname => 'Smith',
-            b_birthdate => TO_DATE('2290-07-01', 'YYYY-MM-DD')
+            b_birthdate => TO_DATE('1990-07-01', 'YYYY-MM-DD')
     );
 END;
+
+select * from CUSTOMER where SVZ = '987643210';
 
 -- test for get customer balance
 DECLARE
     v_balance NUMBER;
 BEGIN
-    v_balance := customer_api.get_customer_balance('9876543210');
+    v_balance := customer_api.get_customer_balance('987643210');
     DBMS_OUTPUT.PUT_LINE('Customer Balance: ' || v_balance);
 END;
 
 -- test for update customer info
 BEGIN
     customer_api.update_customer_info(
-            svz => '9876543210',
+            svz => '987643210',
             f_firstname => 'Alice',
             l_lastname => 'Brown',
             b_birthdate => TO_DATE('1992-06-01', 'YYYY-MM-DD')

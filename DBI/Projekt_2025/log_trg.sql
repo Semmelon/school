@@ -1,4 +1,4 @@
-PROCEDURE log_event(
+CREATE OR REPLACE PROCEDURE log_event(
   p_table_name VARCHAR2,
   p_operation  VARCHAR2,
   p_desc       VARCHAR2

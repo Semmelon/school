@@ -4,7 +4,7 @@
 
 BEGIN
     game_session_api.record_session(
-            s_svz => '9876543210',
+            s_svz => '987643210',
             t_table => 1,
             p_payout => 300.00
     );
@@ -15,4 +15,4 @@ from GAME_HISTORY
 where "table" = 1;
 select *
 from CUSTOMER
-where SVZ = '9876543210';
+where SVZ = '987643210';
